@@ -4,11 +4,11 @@
 
 from models.base_model import BaseModel
 import json
-    
+
 
 class FileStorage:
     """This class handles the storage engine capabilities"""
-    __file_path = "storage.json"
+    __file_path = "file.json"
     __objects = {}
 
     def all(self):
@@ -22,14 +22,18 @@ class FileStorage:
 
     def save(self):
         """This serializes __objects to the JSON file (__file_path)"""
-        k = json.dumps(FileStorage.__objects)
-        with open (FileStorage._file_path, "w") as my_file:
-            my_file.write(k)
+        odict = FileStorage.__objects
+        obj_dict = {obj: odict[obj].to_dict() for obj in odict.keys()}
+        with open(FileStorage.__file_path, "w") as my_file:
+            json.dump(obj_dict, my_file)
 
     def reload(self):
         """This deserializes a JSON file to objects"""
         try:
-            with open(FileStorage.__filepath) as my_file:
-                FileStorage_objects = json.loads(FileStorage.__filepath)
-        except FileNotFoundError:
-            exit(2)
+            with open(FileStorage.__file_path) as my_file:
+                obj_dict = json.load(my_file)
+                for ob in obj_dict.values():
+                    cls_name = ob["__class__"]
+                    del ob["__class__"]
+       	except FileNotFoundError:
+            return
